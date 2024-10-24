@@ -140,10 +140,10 @@ class cvx_program:
 
             dVdt = np.zeros_like(V)
             dVdt[self.x_ind] = f_subs
-            dVdt[self.A_bar_ind] = ((np.einsum('ax,xy->ay',A_der_subs , V[self.A_bar_ind].reshape((self.n_x, self.n_x)))+ np.einsum('xuo,xy,u->oy',B_der_subs,V[self.A_bar_ind].reshape((self.n_x, self.n_x)),u))).reshape(-1)
+            dVdt[self.A_bar_ind] = ((np.einsum('ax,xy->ay',A_der_subs , V[self.A_bar_ind].reshape((self.n_x, self.n_x))))).reshape(-1) #+ np.einsum('xuo,xy,u->oy',B_der_subs,V[self.A_bar_ind].reshape((self.n_x, self.n_x)),u)
             dVdt[self.B_bar_ind] = (Phi_A_xi @ B_subs).reshape(-1) * alpha
             dVdt[self.C_bar_ind] = (Phi_A_xi @ B_subs).reshape(-1) * beta
-            z_t = A_subs - np.einsum('ax,x->a',A_der_subs , x) - + np.einsum('xuo,x,u->o',B_der_subs,x,u)
+            z_t = A_subs - np.einsum('ax,x->a',A_der_subs , x)# - np.einsum('xuo,x,u->o',B_der_subs,x,u)
 
             dVdt[self.z_bar_ind] = Phi_A_xi @ z_t
 

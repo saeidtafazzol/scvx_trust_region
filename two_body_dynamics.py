@@ -138,7 +138,7 @@ class TwoBodyCa:
 
         # Derivative of B w.r.t. states
         self.B_der = ca.jacobian(self.B.reshape((-1,1)), self.states)
-        print(self.B_der.shape)
+
     def set_params(self, c_val):
         # Substitute parameter values using lists
         self.state_dot_sub = ca.substitute(self.state_dot, self.c, c_val)
