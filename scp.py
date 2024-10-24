@@ -64,17 +64,17 @@ class cvx_program:
 
         # Vector indices for flat matrices
         x_end = self.n_x
-        A_bar_end = self.n_x * (1 + self.n_x)
-        B_bar_end = self.n_x * (1 + self.n_x + self.n_u)
-        C_bar_end = self.n_x * (1 + self.n_x + self.n_u + self.n_u)
-        z_bar_end = self.n_x * (1 + self.n_x + self.n_u + self.n_u + 1)
+        A_bar_end = x_end + self.n_x* self.n_x#self.n_x * (1 + self.n_x)
+        B_bar_end = A_bar_end + self.n_x*self.n_u#self.n_x * (1 + self.n_x + self.n_u)
+        C_bar_end = B_bar_end + self.n_x*self.n_u#self.n_x * (1 + self.n_x + self.n_u + self.n_u)
+        z_bar_end = C_bar_end + self.n_x#self.n_x * (1 + self.n_x + self.n_u + self.n_u + 1)
         self.x_ind = slice(0, x_end)
         self.A_bar_ind = slice(x_end, A_bar_end)
         self.B_bar_ind = slice(A_bar_end, B_bar_end)
         self.C_bar_ind = slice(B_bar_end, C_bar_end)
         self.z_bar_ind = slice(C_bar_end, z_bar_end)
 
-        self.V0 = np.zeros((self.n_x * (1 + self.n_x + self.n_u + self.n_u + 1),))
+        self.V0 = np.zeros((z_bar_end,))
         self.V0[self.A_bar_ind] = np.eye(self.n_x).reshape(-1)
 
     def piecewise_ode(self, x, t, u0, u1):

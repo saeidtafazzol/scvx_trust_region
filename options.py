@@ -57,7 +57,7 @@ earth_to_mars['z_0'] = np.log(earth_to_mars['m_0'])
 earth_to_mars['z_f_estimated'] = np.log(earth_to_mars['m_f_estimated'])
 
 earth_to_mars['init_z_map'] = np.linspace(earth_to_mars['z_0'],earth_to_mars['z_f_estimated'],earth_to_mars['N'])
-earth_to_mars['init_control'] = np.einsum('N,d->Nd',earth_to_mars['T_max']*np.exp(-earth_to_mars['init_z_map'])/2 , np.ones((3,))/np.sqrt(3)) 
+earth_to_mars['init_control'] = np.zeros((earth_to_mars['N'],3))#np.einsum('N,d->Nd',earth_to_mars['T_max']*np.exp(-earth_to_mars['init_z_map'])/2 , np.ones((3,))/np.sqrt(3)) 
 
 
 ###########
@@ -118,4 +118,4 @@ earth_to_dionysus['z_0'] = np.log(earth_to_dionysus['m_0'])
 earth_to_dionysus['z_f_estimated'] = np.log(earth_to_dionysus['m_f_estimated'])
 
 earth_to_dionysus['init_z_map'] = np.linspace(earth_to_dionysus['z_0'],earth_to_dionysus['z_f_estimated'],earth_to_dionysus['N'])
-earth_to_dionysus['init_control'] = np.zeros((earth_to_dionysus['N'],3))#np.einsum('N,d->Nd',earth_to_dionysus['T_max']*np.exp(-earth_to_dionysus['init_z_map'])/2 , np.ones((3,))/np.sqrt(3)) 
+earth_to_dionysus['init_control'] = np.zeros((earth_to_dionysus['N'],3))#np.zeros((earth_to_dionysus['N'],3))#np.einsum('N,d->Nd',earth_to_dionysus['T_max']*np.exp(-earth_to_dionysus['init_z_map'])/2 , np.ones((3,))/np.sqrt(3)) 
