@@ -137,8 +137,8 @@ class TwoBodyCa:
         self.state_dot_xu = ca.jacobian(self.state_dot_x.reshape((-1, 1)), self.tau)
 
         # Derivative of B w.r.t. states
-        self.B_der = ca.jacobian(self.B.reshape((-1, 1)), self.states)
-
+        self.B_der = ca.jacobian(self.B.reshape((-1,1)), self.states)
+        print(self.B_der.shape)
     def set_params(self, c_val):
         # Substitute parameter values using lists
         self.state_dot_sub = ca.substitute(self.state_dot, self.c, c_val)
@@ -233,35 +233,35 @@ class TwoBodyCa:
     def A_der_fun(self, states):
         states_casadi = ca.DM(states)
         result = self.A_der_func(states_casadi)
-        return np.array(result.full()).reshape((6, 6)).transpose()
+        return np.array(result.full()).reshape((6, 6),order='F')
 
     def state_dot_x_fun(self, states, tau):
         states_casadi = ca.DM(states)
         tau_casadi = ca.DM(tau)
         result = self.state_dot_x_func(states_casadi, tau_casadi)
-        return np.array(result.full()).reshape((6, 6)).transpose()
+        return np.array(result.full()).reshape((6, 6))
 
     def state_dot_u_fun(self, states):
         states_casadi = ca.DM(states)
         result = self.state_dot_u_func(states_casadi)
-        return np.array(result.full()).reshape((6, 3)).transpose()
+        return np.array(result.full()).reshape((3, 6))
 
     def state_dot_xx_fun(self, states, tau):
         states_casadi = ca.DM(states)
         tau_casadi = ca.DM(tau)
         result = self.state_dot_xx_func(states_casadi, tau_casadi)
-        return np.array(result.full()).reshape((6, 6, 6)).transpose((2,1,0))
-
+        return np.array(result.full()).reshape((6, 6, 6))
+    
     def state_dot_xu_fun(self, states, tau):
         states_casadi = ca.DM(states)
         tau_casadi = ca.DM(tau)
         result = self.state_dot_xu_func(states_casadi, tau_casadi)
-        return np.array(result.full()).reshape((6, 6, 3)).transpose((2,1,0))
+        return np.array(result.full()).reshape((3, 6, 6))
 
     def B_der_fun(self, states):
         states_casadi = ca.DM(states)
         result = self.B_der_func(states_casadi)
-        return np.array(result.full()).reshape((6, 3, 6)).transpose()
+        return np.array(result.full()).reshape((6, 3, 6),order='F')
 
 def get_planet_ode(mu):
     def planet_ode(_,x):

@@ -31,7 +31,7 @@ class cvx_program:
         self.alpha = option.get('alpha', 1.5)
         self.beta = option.get('beta', 1.5)
 
-        self.tolerance = option.get('tolerance', 1e-3)
+        self.tolerance = option.get('tolerance', 5e-3)
         self.C = option.get('C', 1.0)
 
         # Set variables from option
@@ -123,20 +123,31 @@ class cvx_program:
             A_subs = self.dynamics.A_fun(*x).squeeze()
             B_subs = self.dynamics.B_fun(*x).squeeze()
             f_subs = self.dynamics.state_dot_fun(*x, *u).squeeze()
+            dVdt = np.zeros_like(V)
+            dVdt[self.x_ind] = f_subs
+            dVdt[self.A_bar_ind] = (A_der_subs @ V[self.A_bar_ind].reshape((self.n_x, self.n_x))).reshape(-1)
+            dVdt[self.B_bar_ind] = (Phi_A_xi @ B_subs).reshape(-1) * alpha
+            dVdt[self.C_bar_ind] = (Phi_A_xi @ B_subs).reshape(-1) * beta
+            z_t = A_subs - A_der_subs @ x
+
+            dVdt[self.z_bar_ind] = Phi_A_xi @ z_t
         else:
-            A_der_subs = self.dynamics.A_der_fun(x).squeeze().T
+            A_der_subs = self.dynamics.A_der_fun(x).squeeze()
+            B_der_subs = self.dynamics.B_der_fun(x).squeeze()
             A_subs = self.dynamics.A_fun(x).squeeze()
             B_subs = self.dynamics.B_fun(x).squeeze()
             f_subs = self.dynamics.state_dot_fun(x, u).squeeze()
 
-        dVdt = np.zeros_like(V)
-        dVdt[self.x_ind] = f_subs
-        dVdt[self.A_bar_ind] = (A_der_subs @ V[self.A_bar_ind].reshape((self.n_x, self.n_x))).reshape(-1)
-        dVdt[self.B_bar_ind] = (Phi_A_xi @ B_subs).reshape(-1) * alpha
-        dVdt[self.C_bar_ind] = (Phi_A_xi @ B_subs).reshape(-1) * beta
-        z_t = A_subs - A_der_subs @ x
+            dVdt = np.zeros_like(V)
+            dVdt[self.x_ind] = f_subs
+            dVdt[self.A_bar_ind] = ((np.einsum('ax,xy->ay',A_der_subs , V[self.A_bar_ind].reshape((self.n_x, self.n_x)))+ np.einsum('xuo,xy,u->oy',B_der_subs,V[self.A_bar_ind].reshape((self.n_x, self.n_x)),u))).reshape(-1)
+            dVdt[self.B_bar_ind] = (Phi_A_xi @ B_subs).reshape(-1) * alpha
+            dVdt[self.C_bar_ind] = (Phi_A_xi @ B_subs).reshape(-1) * beta
+            z_t = A_subs - np.einsum('ax,x->a',A_der_subs , x) - + np.einsum('xuo,x,u->o',B_der_subs,x,u)
 
-        dVdt[self.z_bar_ind] = Phi_A_xi @ z_t
+            dVdt[self.z_bar_ind] = Phi_A_xi @ z_t
+
+
         return dVdt
 
     def get_prog(self):
