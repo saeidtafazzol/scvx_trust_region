@@ -79,7 +79,11 @@ class cvx_program:
 
     def piecewise_ode(self, x, t, u0, u1):
         u = u0 + (t / self.dt) * (u1 - u0)
-        return np.squeeze(self.dynamics.state_dot_fun(*x, *u))
+        if self.dynamics.backend=='sympy':
+
+            return np.squeeze(self.dynamics.state_dot_fun(*x, *u))
+        else:
+            return np.squeeze(self.dynamics.state_dot_fun(x, u))
 
     def piecewise_ode_pmass(self, z, t, u0, u1):
         u = u0 + (t / self.dt) * (u1 - u0)
@@ -114,11 +118,16 @@ class cvx_program:
         u = u_t0 + (t / self.dt) * (u_t1 - u_t0)
 
         Phi_A_xi = np.linalg.inv(V[self.A_bar_ind].reshape((self.n_x, self.n_x)))
-
-        A_der_subs = self.dynamics.A_der_fun(*x).squeeze().T
-        A_subs = self.dynamics.A_fun(*x).squeeze()
-        B_subs = self.dynamics.B_fun(*x).squeeze()
-        f_subs = self.dynamics.state_dot_fun(*x, *u).squeeze()
+        if self.dynamics.backend=='sympy':
+            A_der_subs = self.dynamics.A_der_fun(*x).squeeze().T
+            A_subs = self.dynamics.A_fun(*x).squeeze()
+            B_subs = self.dynamics.B_fun(*x).squeeze()
+            f_subs = self.dynamics.state_dot_fun(*x, *u).squeeze()
+        else:
+            A_der_subs = self.dynamics.A_der_fun(x).squeeze().T
+            A_subs = self.dynamics.A_fun(x).squeeze()
+            B_subs = self.dynamics.B_fun(x).squeeze()
+            f_subs = self.dynamics.state_dot_fun(x, u).squeeze()
 
         dVdt = np.zeros_like(V)
         dVdt[self.x_ind] = f_subs
